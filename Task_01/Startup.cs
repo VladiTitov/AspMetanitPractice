@@ -18,10 +18,12 @@ namespace Task_01
         public Startup(IHostEnvironment env) => _env = env;
 
         public delegate Task RequestDelegate(HttpContext context);
-        
+
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
-        public void ConfigureServices(IServiceCollection services) { }
+        public void ConfigureServices(IServiceCollection services)
+        {
+        }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void ConfigureOld(IApplicationBuilder app, IWebHostEnvironment env)
@@ -33,9 +35,10 @@ namespace Task_01
                 // то выводим информацию об ошибке, при наличии ошибки
                 app.UseDeveloperExceptionPage();
             }
+
             // добавляем возможности маршрутизации
             app.UseRouting();
- 
+
             // устанавливаем адреса, которые будут обрабатываться
             app.UseEndpoints(endpoints =>
             {
@@ -51,7 +54,8 @@ namespace Task_01
 
         public void Configure(IApplicationBuilder app)
         {
-            #region Run 
+            #region Run
+
             //app.Run(async (context) => await context.Response.WriteAsync("Hello World!"));
 
             // var x = 5;
@@ -65,11 +69,12 @@ namespace Task_01
             // });
             //
             // app.Run(async (context) => await context.Response.WriteAsync($"x * y = {z}"));
-            
+
 
             #endregion
 
             #region Error code
+
             // Лучше так не делать, обращение к Response должно быть одно
             // app.Use(async (context, next) =>
             // {
@@ -78,25 +83,68 @@ namespace Task_01
             // });
             //
             // app.Run(async (context) => await context.Response.WriteAsync("<p>Good bye, World...</p>"));
+
             #endregion
 
             #region Use
 
-            var x = 2;
-            app.Use(async (context, next) =>
-            {
-                x = x * 2;
-                await next.Invoke();
-                x = x * 2;
-                await context.Response.WriteAsync($"Result:{x}");
-            });
-            
-            app.Run(async (context) =>
-            {
-                x = x * 2;
-                await Task.FromResult(0);
-            });
+            // var x = 2;
+            // app.Use(async (context, next) =>
+            // {
+            //     x = x * 2;
+            //     await next.Invoke();
+            //     x = x * 2;
+            //     await context.Response.WriteAsync($"Result:{x}");
+            // });
+            //
+            // app.Run(async (context) =>
+            // {
+            //     x = x * 2;
+            //     await Task.FromResult(0);
+            // });
+
+            #endregion
+
+            #region Map
+
+            // app.Map("/index", Index);
+            // app.Map("/about", About);
+            //
+            // app.Run(async (context) =>
+            // {
+            //     await context.Response.WriteAsync("Page Not Found!");
+            // });
+
+            // app.Map("/home", home =>
+            // {
+            //     home.Map("/index", Index);
+            //     home.Map("/about", About);
+            // });
+            //
+            // app.Run(async (context) =>
+            // {
+            //     await context.Response.WriteAsync("Page Not Found - 404");
+            // });
+
+            #endregion
+
+            #region MapWhen
+
+            app.MapWhen(context => context.Request.Query.ContainsKey("id") &&
+                                   context.Request.Query["id"].Equals("5"), HandleId);
+
             #endregion
         }
+
+        private static void HandleId(IApplicationBuilder app) =>
+            app.Run(async context => await context.Response.WriteAsync("id is equal to 5"));
+
+        private static void Index(IApplicationBuilder app) =>
+            app.Run(async (context) =>
+                await context.Response.WriteAsync("Index"));
+
+        private static void About(IApplicationBuilder app) =>
+            app.Run(async (context) =>
+                await context.Response.WriteAsync("About"));
     }
 }
