@@ -130,8 +130,24 @@ namespace Task_01
 
             #region MapWhen
 
-            app.MapWhen(context => context.Request.Query.ContainsKey("id") &&
-                                   context.Request.Query["id"].Equals("5"), HandleId);
+            // app.MapWhen(context => context.Request.Query.ContainsKey("id") &&
+            //                        context.Request.Query["id"].Equals("5"), HandleId);
+
+            #endregion
+
+            #region Custom component middleware
+
+            // app.UseMiddleware<TokenMiddleware>();
+            //
+            // app.Run(async context => await context.Response.WriteAsync("Hello World!"));
+
+            #endregion
+
+            #region Add Extensions to TokenMiddleware
+
+            app.UseToken("12345678");
+            
+            app.Run(async context => await context.Response.WriteAsync("Hello World!"));
 
             #endregion
         }
