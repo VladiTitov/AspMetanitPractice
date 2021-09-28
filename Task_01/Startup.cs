@@ -1,14 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Threading.Tasks;
-using System.Threading;
 
 namespace Task_01
 {
@@ -145,9 +140,17 @@ namespace Task_01
 
             #region Add Extensions to TokenMiddleware
 
-            app.UseToken("12345678");
-            
-            app.Run(async context => await context.Response.WriteAsync("Hello World!"));
+            // app.UseToken("12345678");
+            //
+            // app.Run(async context => await context.Response.WriteAsync("Hello World!"));
+
+            #endregion
+
+            #region MyRegion
+
+            app.UseMiddleware<ErrorHandingMiddleware>();
+            app.UseMiddleware<AuthenticationMiddleware>();
+            app.UseMiddleware<RoutingMiddleware>();
 
             #endregion
         }
