@@ -1,9 +1,7 @@
-using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileProviders;
 
 namespace Task_02
 {
@@ -16,7 +14,7 @@ namespace Task_02
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            
+            #region Static files 
             // var opt = new DefaultFilesOptions();
             // opt.DefaultFileNames.Clear();
             // opt.DefaultFileNames.Add("hello.html");
@@ -42,19 +40,54 @@ namespace Task_02
             //app.UseDefaultFiles();
             //app.UseDirectoryBrowser();
 
-            app.UseFileServer(new FileServerOptions
-            {
-                EnableDirectoryBrowsing=true,
-                FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot")),
-                RequestPath = new PathString("/pages"), 
-                EnableDefaultFiles=false
-            });
+            // app.UseFileServer(new FileServerOptions
+            // {
+            //     EnableDirectoryBrowsing=true,
+            //     FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), @"wwwroot")),
+            //     RequestPath = new PathString("/pages"), 
+            //     EnableDefaultFiles=false
+            // });
             
-            app.Run(async context =>
-            {
-                await context.Response.WriteAsync("Hello World!");
+            #endregion
 
-            });
+            #region Remap develop error to error message
+            // env.EnvironmentName = "Production";
+            //
+            // if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
+            // else app.UseExceptionHandler("/error");
+            //
+            // app.Map("/error", ap => 
+            //     ap.Run(async context =>
+            //     {
+            //         await context.Response.WriteAsync("DivideByZeroException occured!");
+            //     }));
+            #endregion
+
+            //if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
+
+            //app.UseStatusCodePages("text/plain", "Error. Status code: {0}");
+
+            //app.UseStatusCodePagesWithRedirects("/error?code={0}");
+            //app.UseStatusCodePagesWithReExecute("/error", "?code");
+
+            // app.Map("/error", ap => ap.Run(async context =>
+            // {
+            //     await context.Response.WriteAsync($"Err: {context.Request.Query["code"]}");
+            // }));
+
+            app.Map("/hello", ap => 
+                ap.Run(async context =>
+                {
+                    await context.Response.WriteAsync("Hello ASP.NET Core");
+                }));
+            
+            // app.Run(async context =>
+            // {
+            //     var x = 0;
+            //     var y = 8/x;
+            //     await context.Response.WriteAsync($"Result:{y}");
+            //
+            // });
         }
     }
 }
