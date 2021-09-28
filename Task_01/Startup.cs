@@ -47,7 +47,7 @@ namespace Task_01
             });
         }
 
-        public void Configure(IApplicationBuilder app)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             #region Run
 
@@ -146,11 +146,23 @@ namespace Task_01
 
             #endregion
 
-            #region MyRegion
+            #region Middleware request processing pipeline
 
-            app.UseMiddleware<ErrorHandingMiddleware>();
-            app.UseMiddleware<AuthenticationMiddleware>();
-            app.UseMiddleware<RoutingMiddleware>();
+            // app.UseMiddleware<ErrorHandingMiddleware>();
+            // app.UseMiddleware<AuthenticationMiddleware>();
+            // app.UseMiddleware<RoutingMiddleware>();
+
+            #endregion
+
+            #region Custom enviroments
+            app.Run(async context =>
+            {
+                context.Response.Headers["Content-Type"] = "text/html; charset=utf-8";
+
+                if (env.IsEnvironment("Studies")) await context.Response.WriteAsync("В состоянии обучения");
+                else await context.Response.WriteAsync("В процессе разработки или в продакшене");
+            });
+
 
             #endregion
         }
