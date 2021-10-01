@@ -1,0 +1,11 @@
+﻿{
+  "color-json": "red",
+  "text-json": "Text from JSON",
+  "namespace": 
+  { 
+    "class": 
+    {
+      "method": "Hello!"
+    }
+  }
+}
