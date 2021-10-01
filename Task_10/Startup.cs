@@ -21,16 +21,23 @@ namespace Task_10
             //     .AddXmlFile("config.xml")
             //     .AddIniFile("conf.ini");
             #endregion
-            
+
+            #region Combined builder
+
+            // var builder = new ConfigurationBuilder()
+            //     //.AddJsonFile("conf.json")
+            //     //AddEnvironmentVariables()
+            //     .AddInMemoryCollection(new Dictionary<string, string>
+            //     {
+            //         { "name", "Tom" },
+            //         { "age", "31"}
+            //     })
+            //     .AddConfiguration(config);
+
+            #endregion
+           
             var builder = new ConfigurationBuilder()
-                //.AddJsonFile("conf.json")
-                //AddEnvironmentVariables()
-                .AddInMemoryCollection(new Dictionary<string, string>
-                {
-                    { "name", "Tom" },
-                    { "age", "31"}
-                })
-                .AddConfiguration(config);
+                .AddJsonFile("project.json");
             
             AppConfiguration = builder.Build();
         }
@@ -39,7 +46,7 @@ namespace Task_10
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<IConfiguration>(provider => AppConfiguration);
+            //services.AddTransient<IConfiguration>(provider => AppConfiguration);
         }
         
         public void Configure(IApplicationBuilder app)
@@ -76,7 +83,33 @@ namespace Task_10
 
             #endregion
 
-            app.UseMiddleware<ConfigMiddleware>();
+            //app.UseMiddleware<ConfigMiddleware>();
+
+            var projectJsonContext = GetSectionContent(AppConfiguration);
+            
+            app.Run(async context =>
+            {
+                await context.Response.WriteAsync($"\n{projectJsonContext}");
+            });
+        }
+        
+        private string GetSectionContent(IConfiguration configSection)
+        {
+            var sectionContent = "";
+            foreach (var section in configSection.GetChildren())
+            {
+                sectionContent += "\"" + section.Key + "\":";
+                if(section.Value==null)
+                {
+                    string subSectionContent = GetSectionContent(section);
+                    sectionContent += "{\n" + subSectionContent + "},\n";
+                }
+                else
+                {
+                    sectionContent += "\"" + section.Value + "\",\n";
+                }
+            }
+            return sectionContent;
         }
     }
 }
