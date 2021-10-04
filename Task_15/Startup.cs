@@ -14,9 +14,8 @@ namespace Task_15
     public class Startup
     {
         public void ConfigureServices(IServiceCollection services) { }
-        
-        
-        public void Configure(IApplicationBuilder app, ILogger<Startup> logger)
+
+        public void ConfigureOld(IApplicationBuilder app, ILogger<Startup> logger)
         {
             app.Run(async context =>
             {
@@ -29,6 +28,23 @@ namespace Task_15
                 logger.LogInformation($"LogInformation {context.Request.Path}");
                 logger.LogWarning($"LogWarning {context.Request.Path}");
                 
+                await context.Response.WriteAsync("Hello World!");
+            });
+        }
+
+        public void Configure(IApplicationBuilder app)
+        {
+            var loggerFactory = LoggerFactory.Create(builder =>
+            {
+                //To console
+                //builder.AddConsole();
+                builder.AddDebug();
+            });
+
+            ILogger logger = loggerFactory.CreateLogger<Startup>();
+            app.Run(async context =>
+            {
+                logger.LogInformation($"Requested Path: {context.Request.Path}");
                 await context.Response.WriteAsync("Hello World!");
             });
         }
