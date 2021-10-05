@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection.Metadata;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -73,7 +74,7 @@ namespace Task_17
             });
         }
 
-        public void Configure(IApplicationBuilder app)
+        public void ConfigureOld2(IApplicationBuilder app)
         {
             var myRouterHandler = new RouteHandler(Handle);
             var routeBuilder = new RouteBuilder(app, myRouterHandler);
@@ -86,6 +87,57 @@ namespace Task_17
             });
         }
 
+        public void Configure(IApplicationBuilder app)
+        {
+            #region Without middleware
+            // var routeBuilder = new RouteBuilder(app);
+            // routeBuilder.MapGet("{controller}/{action}/{id?}", async context =>
+            // {
+            //     context.Response.ContentType = "text/html; charset=utf-8";
+            //     await context.Response.WriteAsync("Hello from MapGet!");
+            // });
+            //
+            // routeBuilder.MapRoute("{controller}/{action}", async context =>
+            // {
+            //     context.Response.ContentType = "text/html; charset=utf-8";
+            //     await context.Response.WriteAsync("two segment request");
+            // });
+            //
+            // routeBuilder.MapRoute("{controller}/{action}/{id}", async context =>
+            // {
+            //     context.Response.ContentType = "text/html; charset=utf-8";
+            //     await context.Response.WriteAsync("three segment request");
+            // });
+            //
+            //
+            //
+            // app.UseRouter(routeBuilder.Build());
+            //
+            // app.Run(async context =>
+            // {
+            //     await context.Response.WriteAsync("Hello World!");
+            // });
+            
+            #endregion
+            
+            var routeBuilder = new RouteBuilder(app);
+
+            routeBuilder.MapMiddlewareGet("{controller}/{action}", app =>
+            {
+                app.Run(async context =>
+                {
+                    await context.Response.WriteAsync("Hello from MapMiddlewareGet!");
+                });
+            });
+
+            app.UseRouter(routeBuilder.Build());
+            app.Run(async context =>
+            {
+                await context.Response.WriteAsync("Hello World!");
+            });
+
+        }
+        
         private async Task Handle(HttpContext context) =>
             await context.Response.WriteAsync("Hello ASP.NET Core!");
     }
