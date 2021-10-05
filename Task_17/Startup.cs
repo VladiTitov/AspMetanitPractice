@@ -16,7 +16,10 @@ namespace Task_17
 {
     public class Startup
     {
-        public void ConfigureServices(IServiceCollection services) { }
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddRouting();
+        }
         
         public void ConfigureOld(IApplicationBuilder app, IWebHostEnvironment env)
         {
@@ -87,7 +90,7 @@ namespace Task_17
             });
         }
 
-        public void Configure(IApplicationBuilder app)
+        public void ConfigureOld3(IApplicationBuilder app)
         {
             #region Without middleware
             // var routeBuilder = new RouteBuilder(app);
@@ -119,10 +122,11 @@ namespace Task_17
             // });
             
             #endregion
+            var myRouterHandler = new RouteHandler(Handle);
+            var routeBuilder = new RouteBuilder(app, myRouterHandler);
+            routeBuilder.MapRoute("default", "{controller}/{action}");
             
-            var routeBuilder = new RouteBuilder(app);
-
-            routeBuilder.MapMiddlewareGet("{controller}/{action}", app =>
+            routeBuilder.MapMiddlewareGet("{controller}/{action}/{id}", app =>
             {
                 app.Run(async context =>
                 {
@@ -137,8 +141,31 @@ namespace Task_17
             });
 
         }
+
+        public void Configure(IApplicationBuilder app)
+        {
+            var myRouteHandler = new RouteHandler(Handle);
+            var routeBuilder = new RouteBuilder(app, myRouteHandler);
+            routeBuilder.MapRoute("default", "{action=Index}/{name}-{year}");
+            routeBuilder.MapRoute("default2", "{controller}/{action}/{id?}");
+            app.UseRouter(routeBuilder.Build());
+            
+            app.Run(async context =>
+            {
+                await context.Response.WriteAsync("Hello World!");
+            });
+        }
         
-        private async Task Handle(HttpContext context) =>
+        private async Task HandleOld(HttpContext context) =>
             await context.Response.WriteAsync("Hello ASP.NET Core!");
+
+        private async Task Handle(HttpContext context)
+        {
+            var routeValues = context.GetRouteData().Values;
+            var action = routeValues["action"]?.ToString();
+            var name = routeValues["name"]?.ToString();
+            var year = routeValues["year"]?.ToString();
+            await context.Response.WriteAsync($"action: {action} | name: {name} | year: {year}");
+        }
     }
 }
