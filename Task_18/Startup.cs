@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -16,7 +17,8 @@ namespace Task_18
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<RouteOptions>(options => options.ConstraintMap.Add("position", typeof(PositionConstraint)));
+            //services.Configure<RouteOptions>(options => options.ConstraintMap.Add("position", typeof(PositionConstraint)));
+            services.AddRouting();
         }
         
         public void ConfigureOld(IApplicationBuilder app)
@@ -78,7 +80,7 @@ namespace Task_18
             });
         }
 
-        public void Configure(IApplicationBuilder app)
+        public void ConfigureOld2(IApplicationBuilder app)
         {
             var myRouteHandler = new RouteHandler(HandleAsync);
             
@@ -92,6 +94,25 @@ namespace Task_18
             });
         }
 
+        public void Configure(IApplicationBuilder app)
+        {
+            var routeBuilder = new RouteBuilder(app);
+            routeBuilder.Routes.Add(new AdminRoute());
+
+            routeBuilder.MapRoute("{controler}/{action}", async context =>
+            {
+                context.Response.ContentType = "text/html;charset=utf-8";
+                await context.Response.WriteAsync("two segment request");
+            });
+
+            app.UseRouter(routeBuilder.Build());
+            
+            app.Run(async context =>
+            {
+                await context.Response.WriteAsync("Hello World");
+            });
+        }
+        
         private async Task HandleAsync(HttpContext context)
         {
             var routeValues = context.GetRouteData().Values;
