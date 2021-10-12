@@ -14,9 +14,12 @@ namespace Task_18
 {
     public class Startup
     {
-        public void ConfigureServices(IServiceCollection services) { }
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.Configure<RouteOptions>(options => options.ConstraintMap.Add("position", typeof(PositionConstraint)));
+        }
         
-        public void Configure(IApplicationBuilder app)
+        public void ConfigureOld(IApplicationBuilder app)
         {
             var myRouteHandler = new RouteHandler(async context =>
             {
@@ -24,6 +27,8 @@ namespace Task_18
             });
             
             var routeBuilder = new RouteBuilder(app, myRouteHandler);
+            
+            #region Old constraints 
             // routeBuilder.MapRoute(
             //     "default", 
             //     "{controller}/{action}/{id?}", 
@@ -51,7 +56,19 @@ namespace Task_18
             //     }
             // );
             
-            routeBuilder.MapRoute("default", "{controller:length(4)}/{action:alpha}/{id:range(4,100)}");
+            //routeBuilder.MapRoute("default", "{controller:length(4)}/{action:alpha}/{id:range(4,100)}");
+            
+
+            #endregion
+            
+            routeBuilder.MapRoute("default", "{controller}/{action}/{id?}",
+                null,
+                new
+                {
+                    myRouteHandler = new CustomConstraint("/Home/Index/12"), 
+                    id = new PositionConstraint()
+                }
+            );
 
             app.UseRouter(routeBuilder.Build());
             
@@ -59,6 +76,29 @@ namespace Task_18
             {
                 await context.Response.WriteAsync("Standart context");
             });
+        }
+
+        public void Configure(IApplicationBuilder app)
+        {
+            var myRouteHandler = new RouteHandler(HandleAsync);
+            
+            var routeBuilder = new RouteBuilder(app, myRouteHandler);
+            routeBuilder.MapRoute("default", "{controller}/{action}/{id:position?}");
+            app.UseRouter(routeBuilder.Build());
+            
+            app.Run(async context =>
+            {
+                await context.Response.WriteAsync("Standart context");
+            });
+        }
+
+        private async Task HandleAsync(HttpContext context)
+        {
+            var routeValues = context.GetRouteData().Values;
+            var action = routeValues["action"]?.ToString();
+            var controller = routeValues["controller"]?.ToString();
+            var id = routeValues["id"]?.ToString();
+            await context.Response.WriteAsync($"controller: {controller} | action: {action} | id: {id}");
         }
     }
 }
