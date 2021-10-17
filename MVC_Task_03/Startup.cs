@@ -18,7 +18,7 @@ namespace MVC_Task_03
         public void ConfigureServices(IServiceCollection services)
         {
             var connection = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<MobileContext>(options => options.UseSqlServer(connection));
+            services.AddDbContext<MobileContext>(options => options.UseNpgsql(connection));
             services.AddControllersWithViews();
         }
         
