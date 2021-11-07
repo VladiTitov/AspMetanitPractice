@@ -15,6 +15,7 @@ namespace MVC_Task_03.Controllers
         {
             return View(db.Phones.ToList());
         }
+
         
         [HttpGet]
         public IActionResult Buy(int? id)
