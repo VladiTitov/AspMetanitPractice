@@ -8,27 +8,32 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MVC_Task_04.Models;
+using MVC_Task_04.Services;
 using MVC_Task_04.Util;
 
 namespace MVC_Task_04.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : HelloBaseController
     {
         private readonly IWebHostEnvironment _appEnviroment;
         
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger, IWebHostEnvironment appEnviroment)
+        private readonly ITimeService _timeService;
+
+        public HomeController(ILogger<HomeController> logger, IWebHostEnvironment appEnviroment, ITimeService timeService)
         {
             _logger = logger;
             _appEnviroment = appEnviroment;
+            _timeService = timeService;
         }
 
         public IActionResult Index()
         {
             //return RedirectToAction("GetHtml", new { message = $"Redirected message"});
             //return RedirectToAction("AgeValidator", new { age = Request.Query.FirstOrDefault(a=>a.Key.Equals("age")).Value});
-            return RedirectToAction("GetVirtualFile");
+            //return RedirectToAction("GetVirtualFile");
+            return Content($"Запрос успешно выполнен!\nТекущее время: {_timeService.Time}");
         }
 
         public IActionResult GetFile()

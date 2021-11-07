@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MVC_Task_04.Services;
 
 namespace MVC_Task_04
 {
@@ -22,6 +23,7 @@ namespace MVC_Task_04
         
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddTransient<ITimeService, TimeService>();
             services.AddControllersWithViews();
         }
 
