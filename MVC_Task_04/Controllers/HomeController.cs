@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MVC_Task_04.Models;
@@ -12,19 +14,55 @@ namespace MVC_Task_04.Controllers
 {
     public class HomeController : Controller
     {
+        private readonly IWebHostEnvironment _appEnviroment;
+        
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IWebHostEnvironment appEnviroment)
         {
             _logger = logger;
+            _appEnviroment = appEnviroment;
         }
 
         public IActionResult Index()
         {
             //return RedirectToAction("GetHtml", new { message = $"Redirected message"});
-            return RedirectToAction("AgeValidator", new { age = Request.Query.FirstOrDefault(a=>a.Key.Equals("age")).Value});
+            //return RedirectToAction("AgeValidator", new { age = Request.Query.FirstOrDefault(a=>a.Key.Equals("age")).Value});
+            return RedirectToAction("GetVirtualFile");
         }
 
+        public IActionResult GetFile()
+        {
+            var filePath = Path.Combine(_appEnviroment.ContentRootPath, "Files/book.pdf");
+            var fileType = "application/pdf";
+            var fileName = "book.pdf";
+            return PhysicalFile(filePath, fileType, fileName);
+        }
+
+        public FileResult GetBytes()
+        {
+            var path = Path.Combine(_appEnviroment.ContentRootPath, "Files/book.pdf");
+            var mass = System.IO.File.ReadAllBytes(path);
+            var fileType = "application/pdf";
+            var fileName = "book2.pdf";
+            return File(mass, fileType, fileName);
+        }
+
+        public VirtualFileResult GetVirtualFile()
+        {
+            var filePath = Path.Combine("~/Files", "hello.txt");
+            return File(filePath, "text/plain", "hello.txt");
+        }
+        
+        public FileResult GetStream()
+        {
+            var path = Path.Combine(_appEnviroment.ContentRootPath, "Files/book.pdf");
+            FileStream fs = new FileStream(path, FileMode.Open);
+            var fileType = "application/pdf";
+            var fileName = "book2.pdf";
+            return File(fs, fileType, fileName);
+        }
+        
         public IActionResult AgeValidator(int age = 0)
         {
             return age < 18 ? (IActionResult) Unauthorized(new ErrorViewModel {RequestId = "Вам нет 18 лет. Доступ запрещен!"}) : Content("Проверка пройдена");

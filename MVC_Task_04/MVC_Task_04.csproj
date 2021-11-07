@@ -4,4 +4,21 @@
         <TargetFramework>net5.0</TargetFramework>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Folder Include="Files" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Update="wwwroot\Files\hello.txt">
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      </Content>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Files\book.pdf">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>
